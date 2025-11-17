@@ -3,6 +3,8 @@
 
 # Google credentials (will be stored in GitHub Secrets)
 gcreds.json
+google_creds_base64.txt
+SECRETS_VALUES.txt
 
 # Downloaded Excel reports
 *.xlsx
