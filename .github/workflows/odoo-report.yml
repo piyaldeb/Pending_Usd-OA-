@@ -1,0 +1,52 @@
+name: Odoo Pending Slider Count Report
+
+on:
+  schedule:
+    # Runs at 10am, 1pm, 4pm BDT (UTC+6)
+    # Converting to UTC: 10am BDT = 4am UTC, 1pm BDT = 7am UTC, 4pm BDT = 10am UTC
+    - cron: '0 4,7,10 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Create Google credentials file
+      run: |
+        echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > gcreds.json
+
+    - name: Create .env file
+      run: |
+        echo "ODOO_URL=${{ secrets.ODOO_URL }}" >> .env
+        echo "ODOO_DB=${{ secrets.ODOO_DB }}" >> .env
+        echo "ODOO_USERNAME=${{ secrets.ODOO_USERNAME }}" >> .env
+        echo "ODOO_PASSWORD=${{ secrets.ODOO_PASSWORD }}" >> .env
+
+    - name: Run pending slider count script
+      run: |
+        python pending_slider_count.py
+
+    - name: Upload artifacts (if any Excel files generated)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: reports-${{ github.run_number }}
+        path: '*.xlsx'
+        retention-days: 7
+        if-no-files-found: ignore
