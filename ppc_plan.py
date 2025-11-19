@@ -4,13 +4,12 @@ import re
 import logging
 import sys
 import os
-from datetime import date, datetime, timedelta
+from datetime import date
 import calendar
 import gspread
 from gspread_dataframe import set_with_dataframe
 from google.oauth2 import service_account
 import pandas as pd
-import pytz
 from dotenv import load_dotenv
 load_dotenv()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -48,7 +47,7 @@ print(f"📅 Report period: {DATE_FROM} → {DATE_TO}")
 SHEET_ID = "1mg4se7W0Mm2mEZYlxIVctofNJllCcpula4IQj0kuVCY"
 # Updated to only one tab
 COMPANY_SHEETS = {
-    1: {"sheet": "Zip_PPC_Planing_Raw", "timestamp_cell": "C1"},
+    1: {"sheet": "Zip_PPC_Planing_Raw"},
 }
 
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -173,9 +172,7 @@ def generate_and_download(company_id, company_name):
         if not df.empty:
             # Paste data starting from A1
             set_with_dataframe(worksheet, df, row=1, col=1, include_index=False, include_column_header=True)
-            timestamp = datetime.now(pytz.timezone("Asia/Dhaka")).strftime("%Y-%m-%d %H:%M:%S")
-            worksheet.update(sheet_cfg["timestamp_cell"], [[timestamp]])
-            print(f"✅ {company_name} data pasted to sheet, timestamp: {timestamp}")
+            print(f"✅ {company_name} data pasted to sheet")
         else:
             print(f"⚠️ No data to paste for {company_name}")
 
