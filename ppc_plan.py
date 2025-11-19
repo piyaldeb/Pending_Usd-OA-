@@ -48,7 +48,7 @@ print(f"📅 Report period: {DATE_FROM} → {DATE_TO}")
 SHEET_ID = "1mg4se7W0Mm2mEZYlxIVctofNJllCcpula4IQj0kuVCY"
 # Updated to only one tab
 COMPANY_SHEETS = {
-    1: {"sheet": "Zip_PPC_Planing_Raw", "clear_range": "A2:AD", "timestamp_cell": "C1"},
+    1: {"sheet": "Zip_PPC_Planing_Raw", "timestamp_cell": "C1"},
 }
 
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -164,10 +164,15 @@ def generate_and_download(company_id, company_name):
         # ---------------------- PASTE TO GOOGLE SHEETS ----------------------
         sheet_cfg = COMPANY_SHEETS[company_id]
         worksheet = client.open_by_key(SHEET_ID).worksheet(sheet_cfg["sheet"])
-        worksheet.batch_clear([sheet_cfg["clear_range"]])
+
+        # Clear entire sheet
+        worksheet.clear()
+        print(f"✅ Cleared entire sheet: {sheet_cfg['sheet']}")
+
         df = pd.read_excel(filename)
         if not df.empty:
-            set_with_dataframe(worksheet, df, row=2, col=1)
+            # Paste data starting from A1
+            set_with_dataframe(worksheet, df, row=1, col=1, include_index=False, include_column_header=True)
             timestamp = datetime.now(pytz.timezone("Asia/Dhaka")).strftime("%Y-%m-%d %H:%M:%S")
             worksheet.update(sheet_cfg["timestamp_cell"], [[timestamp]])
             print(f"✅ {company_name} data pasted to sheet, timestamp: {timestamp}")
