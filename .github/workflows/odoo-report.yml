@@ -42,6 +42,10 @@ jobs:
       run: |
         python pending_slider_count.py
 
+    - name: Run PPC planning report script
+      run: |
+        python ppc_plan.py
+
     - name: Upload artifacts (if any Excel files generated)
       if: always()
       uses: actions/upload-artifact@v4
