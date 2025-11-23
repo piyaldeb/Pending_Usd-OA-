@@ -285,12 +285,33 @@ for company_id, cname in COMPANIES.items():
                         existing_data = worksheet.get_all_values()
                         next_row = len(existing_data) + 1
                         set_with_dataframe(worksheet, combined_df, row=next_row, col=1, include_index=False, include_column_header=False)
-                        print(f"✅ Appended {len(combined_df)} rows to {sheet_cfg['sheet']} starting at row {next_row}")
+
+                        # Add TOTAL formulas for appended rows
+                        total_col = 'I' if company_id == 3 else 'AA'  # Column I for MT, AA for Zipper
+                        sum_range = 'C:H' if company_id == 3 else 'C:Z'
+
+                        formulas = []
+                        for row in range(next_row, next_row + len(combined_df)):
+                            formulas.append([f'=SUM({sum_range[0]}{row}:{sum_range[2]}{row})'])
+
+                        worksheet.update(f'{total_col}{next_row}:{total_col}{next_row + len(combined_df) - 1}', formulas, value_input_option='USER_ENTERED')
+                        print(f"✅ Appended {len(combined_df)} rows to {sheet_cfg['sheet']} starting at row {next_row} with TOTAL formulas")
                     else:
                         # Clear and paste full data
                         worksheet.clear()
                         set_with_dataframe(worksheet, combined_df, row=1, col=1, include_index=False, include_column_header=True)
-                        print(f"✅ Full data pasted to {sheet_cfg['sheet']}, {len(combined_df)} rows")
+
+                        # Add TOTAL formulas for all data rows
+                        total_col = 'I' if company_id == 3 else 'AA'  # Column I for MT, AA for Zipper
+                        sum_start = 'C' if company_id == 3 else 'C'
+                        sum_end = 'H' if company_id == 3 else 'Z'
+
+                        formulas = []
+                        for row in range(2, len(combined_df) + 2):  # Start from row 2 (after header)
+                            formulas.append([f'=SUM({sum_start}{row}:{sum_end}{row})'])
+
+                        worksheet.update(f'{total_col}2:{total_col}{len(combined_df) + 1}', formulas, value_input_option='USER_ENTERED')
+                        print(f"✅ Full data pasted to {sheet_cfg['sheet']}, {len(combined_df)} rows with TOTAL formulas")
                 else:
                     print(f"⚠️ No value data found for {cname}")
 
