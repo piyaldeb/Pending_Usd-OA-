@@ -46,6 +46,10 @@ jobs:
       run: |
         python ppc_plan.py
 
+    - name: Run order summary report script
+      run: |
+        python order_summary.py
+
     - name: Upload artifacts (if any Excel files generated)
       if: always()
       uses: actions/upload-artifact@v4
