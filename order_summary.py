@@ -83,7 +83,7 @@ def get_date_range_for_company(company_id):
     """
     today = date.today()
     yesterday = today - timedelta(days=1)
-    default_start = date(2024, 4, 1)
+    default_start = date(2025, 4, 1)
 
     sheet_name = COMPANY_SHEETS[company_id]["sheet"]
 
